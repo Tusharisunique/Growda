@@ -1,0 +1,119 @@
+# GROWDA - Project Overview / PRD
+
+## 1. Project Name
+
+**GROWDA - Federated Learning–Powered Pneumonia Diagnosis System**
+
+## 2. Problem Statement
+
+Hospitals cannot share medical imaging data due to privacy laws, limiting collaborative AI development. This restricts accuracy and generalisation of pneumonia diagnosis models.
+
+## 3. Solution Overview
+
+GROWDA enables hospitals to collaboratively train a pneumonia detection model **without sharing patient data** using **Federated Learning (Flower + TensorFlow)**. Each hospital trains locally and sends only model weight updates. A web UI allows doctors to monitor training and diagnose X-rays.
+
+## 4. System Architecture
+
+### Components
+
+* **Federated Server**: Coordinates rounds, aggregates weights, stores `global_model.keras`, exposes APIs.
+* **Hospital Clients (A & B)**: Local training, dataset isolation, returns weights and metrics.
+* **React Frontend**: Dashboard + diagnosis tool.
+* **Local Datasets**: Independent distributions for each hospital.
+
+## 5. Workflow (End‑to‑End)
+
+### Step 1 - Server Initialization
+
+Server loads base CNN, waits for clients, starts rounds.
+
+### Step 2 - Clients Receive Global Model
+
+Clients: load model → train locally → send updated weights.
+
+### Step 3 - Server Aggregation
+
+Server runs FedAvg → updates global model → saves.
+
+### Step 4 - Dashboard Updates
+
+Frontend polls `/status` → shows training state.
+
+### Step 5 - Diagnosis
+
+Doctor uploads X‑ray → backend predicts via global model → returns class + probability.
+
+## 6. Dataset Structure
+
+```
+data/
+ ├── hospital_A/
+ │   ├── train/NORMAL/
+ │   ├── train/PNEUMONIA/
+ │   ├── val/NORMAL/
+ │   └── val/PNEUMONIA/
+ └── hospital_B/
+     ├── train/NORMAL/
+     ├── train/PNEUMONIA/
+     ├── val/NORMAL/
+     └── val/PNEUMONIA/
+```
+
+## 7. Model Architecture
+
+CNN with:
+
+* Conv → ReLU → MaxPool ×3
+* Dense(128)
+* Sigmoid output
+* Loss: Binary Crossentropy
+* Optimizer: Adam
+
+## 8. Federated Learning Settings
+
+* Strategy: FedAvg
+* Rounds: 3
+* min_fit_clients: 2
+* Epochs per round: 1
+* Weight format: NumPy
+
+## 9. Backend API
+
+* **POST /train_round** – Trigger training round
+* **GET /status** – Round, accuracy, clients, state
+* **POST /predict** – Upload X‑ray → get prediction
+
+## 10. Frontend Features
+
+### Dashboard
+
+* Training controls
+* Metrics: accuracy, rounds, clients
+* Live logs preview
+
+### Diagnosis Panel
+
+* X‑ray upload
+* Result display (Normal/Pneumonia)
+* Confidence score
+
+## 11. Reliability
+
+* Weight shape validation
+* Missing model fallback
+* Client disconnect handling
+* Graceful server restarts
+
+## 12. Final Output
+
+* Federated‑trained global model
+* Doctor‑facing web diagnosis tool
+* Training visualisation dashboard
+
+## 13. Future Enhancements
+
+* Authentication
+* Differential privacy
+* More hospitals
+* Mobile support
+* Secure encryption

@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Delius&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background: #F5F5DC;
+  min-height: 100vh;
+  font-family: 'Delius', Arial, sans-serif;
+  color: #55341A;
+}
+
+h1, h2, h3, .card-title {
+  font-family: 'Delius', Arial, sans-serif;
+  font-weight: bold;
+  letter-spacing: -0.5px;
+  color: #8B5A2B;
+}
+
+.glass, .card, .rounded-xl {
+  background: #FFFDF8;
+  border: 1px solid #E8DCC8;
+  border-radius: 1.2rem;
+  box-shadow: none;
+}
+
+.btn-cta {
+  background: #8B5A2B;
+  color: #FFFDF8;
+  font-family: 'Delius', Arial, sans-serif;
+  border-radius: 1rem;
+  font-weight: 700;
+  padding: 0.7em 2em;
+}
+.btn-cta:hover:enabled {
+  background: #704623;
+  color: #FFFDF8;
+}
+.btn-cta:disabled {
+  background: #E8DCC8;
+  color: #B28B5E;
+  cursor: not-allowed;
+}
+
+input[type="file"] {
+  @apply hidden;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: #E8DCC8;
+  border-radius: 8px;
+}
+
+.fadein {
+  animation: fade-in-up 0.4s cubic-bezier(0.39, 0.58, 0.57, 1) forwards;
+  opacity: 0;
+}
+@keyframes fade-in-up {
+  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(20px); }
+}

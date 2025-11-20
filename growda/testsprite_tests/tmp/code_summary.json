@@ -1,0 +1,103 @@
+{
+  "tech_stack": [
+    "Python 3.9",
+    "FastAPI",
+    "TensorFlow",
+    "Flower",
+    "NumPy",
+    "React 18",
+    "Vite",
+    "Tailwind CSS"
+  ],
+  "features": [
+    {
+      "name": "Federated Training Control API",
+      "description": "Triggers Flower rounds and returns aggregated training status so the frontend dashboard can monitor progress.",
+      "files": [
+        "backend/main.py",
+        "backend/fl_server.py"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/train_round": {
+            "post": {
+              "summary": "Start a single federated learning round",
+              "responses": {
+                "200": {"description": "Round accepted and running"},
+                "400": {"description": "Training already in progress"}
+              }
+            }
+          },
+          "/status": {
+            "get": {
+              "summary": "Fetch global round, accuracy, connected clients, and training flag",
+              "responses": {"200": {"description": "Current training status"}}
+            }
+          },
+          "/training_status": {
+            "get": {
+              "summary": "Legacy alias of /status",
+              "responses": {"200": {"description": "Current training status"}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Metrics History API",
+      "description": "Returns persisted round-by-round accuracy and per-client metrics for dashboard charting.",
+      "files": [
+        "backend/main.py",
+        "backend/fl_server.py"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/metrics/history": {
+            "get": {
+              "summary": "List historical global accuracy and per-client stats",
+              "responses": {"200": {"description": "Metrics history payload"}}
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "Diagnosis Prediction API",
+      "description": "Accepts a chest X-ray upload and returns predicted class, confidence, and severity level using the latest global model.",
+      "files": [
+        "backend/main.py",
+        "backend/model.py"
+      ],
+      "api_doc": {
+        "openapi": "3.0.0",
+        "paths": {
+          "/predict": {
+            "post": {
+              "summary": "Predict pneumonia from uploaded X-ray",
+              "requestBody": {
+                "content": {
+                  "multipart/form-data": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "file": {"type": "string", "format": "binary"}
+                      },
+                      "required": ["file"]
+                    }
+                  }
+                }
+              },
+              "responses": {
+                "200": {"description": "Prediction completed"},
+                "400": {"description": "Missing model or invalid file"},
+                "500": {"description": "Inference failed"}
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

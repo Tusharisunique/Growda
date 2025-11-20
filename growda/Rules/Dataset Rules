@@ -1,0 +1,12 @@
+# Dataset Rules
+- Structure must be:
+    data/hospital_A/train/NORMAL
+    data/hospital_A/train/PNEUMONIA
+    data/hospital_A/val/NORMAL
+    data/hospital_A/val/PNEUMONIA
+    data/hospital_B/train/...
+    data/hospital_B/val/...
+
+- No viral/bacterial subfolders.
+- Binary labels only.
+- Ensure train/val split before starting federated training.

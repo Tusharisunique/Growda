@@ -1,0 +1,9 @@
+# Frontend Rules
+- Must use React + Vite + Tailwind + axios.
+- All API calls must go through src/services/api.js.
+- Never hardcode backend URL; use import.meta.env.VITE_API_BASE_URL.
+- Diagnosis page = upload → preview → POST /predict → show results.
+- Dashboard polls /status every 3s.
+- Use clean hospital UI theme (white, blue, gray).
+- Always validate file before uploading.
+- Add loading states + error toasts.

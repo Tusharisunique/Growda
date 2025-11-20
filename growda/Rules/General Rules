@@ -1,0 +1,13 @@
+# GROWDA — Global Rules
+- Keep project structure exactly intact (backend/, clients/, frontend/).
+- Never change file paths unless explicitly told.
+- Model = Binary classifier. Output shape = 1 neuron (sigmoid).
+- All clients MUST use identical model.py.
+- All clients MUST return (parameters_updated, num_examples, results_dict).
+- Never modify dataset paths without confirming.
+- Keep API endpoints exactly: /predict, /status, /train_round.
+- Ensure all backend responses are JSON, no HTML.
+- Always maintain compatibility with Python 3.9 and TF2.x.
+- Federated server must never crash; add defensive checks.
+- Frontend must use VITE_API_BASE_URL for all API calls.
+- Always keep code minimal, clean, and readable.

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC001",
+    "title": "start_federated_learning_round",
+    "description": "Test the /train_round POST endpoint to ensure it correctly starts a federated learning round when no training is in progress, and returns a 200 status. Also verify it returns a 400 status if a training round is already running."
+  },
+  {
+    "id": "TC002",
+    "title": "fetch_training_status",
+    "description": "Test the /status GET endpoint to verify it returns the current global round number, accuracy, connected clients count, and training flag with a 200 status."
+  },
+  {
+    "id": "TC003",
+    "title": "fetch_training_status_legacy_alias",
+    "description": "Test the /training_status GET endpoint as a legacy alias of /status to ensure it returns the same training status information with a 200 status."
+  },
+  {
+    "id": "TC004",
+    "title": "retrieve_metrics_history",
+    "description": "Test the /metrics/history GET endpoint to confirm it returns persisted historical global accuracy and per-client metrics data correctly with a 200 status."
+  },
+  {
+    "id": "TC005",
+    "title": "predict_pneumonia_from_xray_upload",
+    "description": "Test the /predict POST endpoint by uploading a valid chest X-ray image file and verify it returns the predicted class (Normal or Pneumonia), confidence score, and severity level with a 200 status."
+  },
+  {
+    "id": "TC006",
+    "title": "handle_missing_model_or_invalid_file_in_prediction",
+    "description": "Test the /predict POST endpoint with missing model or invalid file input to ensure it returns a 400 status with an appropriate error message."
+  },
+  {
+    "id": "TC007",
+    "title": "handle_inference_failure_in_prediction",
+    "description": "Test the /predict POST endpoint to simulate inference failure and verify it returns a 500 status with an error message indicating inference failure."
+  }
+]

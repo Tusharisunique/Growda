@@ -1,0 +1,10 @@
+# Backend Rules
+- Use FastAPI with CORS enabled for frontend.
+- Flower server must run non-blocking (thread or subprocess).
+- Save global model as 'global_model.keras' only.
+- /train_round must respond immediately, not block training.
+- /predict must load global_model.keras if exists.
+- /status must return round, accuracy, connected_clients.
+- Ensure backend never depends on frontend state.
+- Do NOT use deprecated Flower functionalities.
+- Avoid large weight logs; keep output minimal.

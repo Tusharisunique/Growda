@@ -1,0 +1,8 @@
+# Client Rules
+- Both clients must be identical except dataset path.
+- class_mode = 'binary'.
+- Use flow_from_directory() with (150,150) size.
+- fit() must always return (weights, num_examples, metrics).
+- evaluate() must handle empty validation folders gracefully.
+- No encryption needed for prototype; pass-through only.
+- Use start_numpy_client() only.

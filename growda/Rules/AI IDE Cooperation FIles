@@ -1,0 +1,8 @@
+# AI Editor Cooperation Rules
+- Never rewrite unrelated files.
+- Only modify files relevant to the request.
+- Never remove functional code unless necessary for correctness.
+- Always preserve existing comments and structure.
+- Always run lightweight checks before suggesting replacements.
+- Return entire file only if asked; otherwise return diffs/patches.
+- Ask for confirmation before restructuring logic.

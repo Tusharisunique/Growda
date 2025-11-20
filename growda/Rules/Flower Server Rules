@@ -1,0 +1,7 @@
+# Flower Server Rules
+- Use FedAvg only.
+- aggregate_fit must skip invalid client results safely.
+- Never expect evaluate() results; handle None.
+- Ensure min_fit_clients = 2, min_available_clients = 2.
+- Never store model using .h5; only .keras.
+- Model must load weights only if shapes match.
