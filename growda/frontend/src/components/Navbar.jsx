@@ -9,9 +9,9 @@ export default function Navbar() {
         <Link to="/" className="flex items-center space-x-3 text-blue-700 font-bold tracking-tight text-2xl">
           <span className="inline-flex items-center">
             <svg width="32" height="32" fill="none" viewBox="0 0 32 32" className="mr-1">
-              <rect width="32" height="32" rx="9" fill="#2563eb"/>
+              <rect width="32" height="32" rx="9" fill="#8B5A2B"/>
               <path d="M9 21c6-1 8.6-6.5 11-8.5C23 11 23 19 23 19s-2.5 2-7 2-7-0.5-7-0.5z" fill="#fff"/>
-              <circle cx="16" cy="16" r="2.2" fill="#2563eb" fillOpacity=".9"/>
+              <circle cx="16" cy="16" r="2.2" fill="#F5F5DC" fillOpacity=".9"/>
             </svg>
             <span>Growda AI</span>
           </span>

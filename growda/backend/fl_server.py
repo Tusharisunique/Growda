@@ -45,6 +45,7 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
         global_round = server_round
         filtered_results = []
         client_metrics = []
+        acc_inputs = []  # (num_examples, {"accuracy": value}) for weighted_average
 
         for idx, r in enumerate(results or []):
             try:
@@ -52,9 +53,12 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
                 if isinstance(r, tuple) and len(r) == 2 and hasattr(r[1], "parameters"):
                     fit_res = r[1]
                     metrics = getattr(fit_res, "metrics", {})
+                    num_examples = int(getattr(fit_res, "num_examples", 0))
                     client_id = str(getattr(r[0], "cid", idx))
                     accuracy = metrics.get("accuracy", None)
                     client_metrics.append({"client": client_id, "accuracy": accuracy})
+                    if isinstance(accuracy, (int, float)) and num_examples > 0:
+                        acc_inputs.append((num_examples, {"accuracy": float(accuracy)}))
                     filtered_results.append(r)
                     continue
 
@@ -75,15 +79,22 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
             print("[Aggregation] No valid client updates; skipping round.")
             return None, {}
 
-        aggregated_weights, metrics = super().aggregate_fit(server_round, filtered_results, failures)
+        aggregated_weights, _ = super().aggregate_fit(server_round, filtered_results, failures)
         # Save & log global model after aggregation
         if aggregated_weights is not None:
             try:
+                # Convert aggregated Flower Parameters to NumPy weights
+                ndarrays = parameters_to_ndarrays(aggregated_weights)
                 model = create_pneumonia_model()
-                model.set_weights(aggregated_weights)
+                model.set_weights(ndarrays)
                 model.save(MODEL_PATH)
-                if metrics and "accuracy" in metrics:
-                    global_accuracy = metrics["accuracy"]
+
+                # Compute global accuracy from client metrics if available
+                if acc_inputs:
+                    agg_metrics = weighted_average(acc_inputs)
+                    if "accuracy" in agg_metrics:
+                        global_accuracy = agg_metrics["accuracy"]
+
                 print(f"🌐 [Round {server_round}] Global model updated and saved at '{MODEL_PATH}'.")
                 print("🔗 Connected clients:", connected_clients)
                 print(f"📈 Client Accuracies: {client_metrics}")
@@ -92,7 +103,7 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
             except Exception as ex:
                 print("[Server] ❌ Model saving/metrics logging failed:", ex)
                 traceback.print_exc()
-        return aggregated_weights, metrics
+        return aggregated_weights, {"accuracy": global_accuracy} if aggregated_weights is not None else {}
 
 def _log_history(round_num, accuracy, client_metrics):
     try:
@@ -112,10 +123,28 @@ def get_metrics_history():
     return []
 
 def get_training_status():
+    current_round = global_round
+    current_accuracy = global_accuracy
+    current_clients = connected_clients
+
+    try:
+        hist = get_metrics_history()
+        if hist:
+            last = hist[-1]
+            if "round" in last:
+                current_round = int(last.get("round", current_round or 0))
+            if "accuracy" in last:
+                current_accuracy = float(last.get("accuracy", current_accuracy or 0.0))
+            clients_list = last.get("clients", [])
+            if isinstance(clients_list, list):
+                current_clients = len(clients_list)
+    except Exception as exc:
+        print("[Status] Failed to derive metrics from history:", exc)
+
     return {
-        "round": global_round,
-        "global_accuracy": global_accuracy,
-        "connected_clients": connected_clients,
+        "round": current_round,
+        "global_accuracy": current_accuracy,
+        "connected_clients": current_clients,
         "total_rounds": 3,
         "last_update": str(tf.timestamp().numpy()),
     }

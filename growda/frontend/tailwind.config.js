@@ -12,16 +12,16 @@ export default {
       },
       colors: {
         blue: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#FFFDF8',   // soft card background
+          100: '#F5F5DC',  // page background
+          200: '#E8DCC8',  // subtle borders / accents
+          300: '#D9C3A4',
+          400: '#C29B6E',
+          500: '#8B5A2B',  // primary accent (used by buttons, headings)
+          600: '#704623',
+          700: '#55341A',
+          800: '#3E2C12',
+          900: '#261708',
         },
         gray: {
           50: '#f9fafb',
