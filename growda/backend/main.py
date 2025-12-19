@@ -13,7 +13,7 @@ app = FastAPI(title="Growda API - Federated Learning for Pneumonia Detection")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["https://growda.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
