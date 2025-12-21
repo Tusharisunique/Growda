@@ -13,6 +13,11 @@ from backend.model import create_pneumonia_model
 
 print(" Starting Growda Flower Federated Server...")
 
+# Server configuration - supports environment variables for deployment
+# Default to localhost:8100 for Nginx reverse proxy setup
+FL_SERVER_HOST = os.getenv("FL_SERVER_HOST", "127.0.0.1")
+FL_SERVER_PORT = int(os.getenv("FL_SERVER_PORT", "8100"))
+
 MODEL_PATH = "global_model.keras"
 HISTORY_PATH = "metrics_history.npy"
 global_round = 0
@@ -180,9 +185,12 @@ def start_server(num_rounds: int = 3, reset_model: bool = False):
         evaluate_metrics_aggregation_fn=weighted_average,
         initial_parameters=_initial_parameters(),
     )
+    
+    server_address = f"{FL_SERVER_HOST}:{FL_SERVER_PORT}"
+    
     try:
         fl.server.start_server(
-            server_address="0.0.0.0:8080",
+            server_address=server_address,
             config=fl.server.ServerConfig(num_rounds=num_rounds),
             strategy=strategy,
         )
