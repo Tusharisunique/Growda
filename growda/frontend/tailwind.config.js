@@ -12,12 +12,12 @@ export default {
       },
       colors: {
         blue: {
-          50: '#FFFDF8',   // soft card background
-          100: '#F5F5DC',  // page background
-          200: '#E8DCC8',  // subtle borders / accents
+          50: '#FFFDF8',  
+          100: '#F5F5DC',  
+          200: '#E8DCC8',  
           300: '#D9C3A4',
           400: '#C29B6E',
-          500: '#8B5A2B',  // primary accent (used by buttons, headings)
+          500: '#8B5A2B',  
           600: '#704623',
           700: '#55341A',
           800: '#3E2C12',

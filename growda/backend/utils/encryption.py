@@ -14,8 +14,6 @@ import numpy as np
 # AES requires a fixed block size
 BLOCK_SIZE = 16
 
-# In a real-world scenario, this would be securely stored and distributed
-# For this prototype, we use a fixed key
 SECRET_KEY = b'growdasecretkey1'  # Must be 16, 24, or 32 bytes long
 
 def encrypt_weights(weights: Dict[str, np.ndarray]) -> str:
