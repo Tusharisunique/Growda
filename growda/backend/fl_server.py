@@ -15,7 +15,7 @@ print(" Starting Growda Flower Federated Server...")
 
 # Server configuration - supports environment variables for deployment
 # Default to localhost:8100 for Nginx reverse proxy setup
-FL_SERVER_HOST = os.getenv("FL_SERVER_HOST", "127.0.0.1")
+FL_SERVER_HOST = os.getenv("FL_SERVER_HOST", "0.0.0.0")
 FL_SERVER_PORT = int(os.getenv("FL_SERVER_PORT", "8100"))
 
 MODEL_PATH = "global_model.keras"
