@@ -13,7 +13,9 @@ app = FastAPI(title="Growda API - Federated Learning for Pneumonia Detection")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://growda.vercel.app"],
+    allow_origins=[
+        "*",  # Allow all origins (for development - remove in production if needed)
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,4 +91,4 @@ def predict(file: UploadFile = File(...)):
         os.unlink(temp_file_path)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

@@ -62,7 +62,7 @@ class PneumoniaClient(fl.client.NumPyClient):
 
 def main():
     client = PneumoniaClient()
-    fl.client.start_numpy_client(server_address="127.0.0.1:8080", client=client)
+    fl.client.start_numpy_client(server_address="growdafl.diwanshujoshi.in", client=client)
 
 if __name__ == "__main__":
     main()
