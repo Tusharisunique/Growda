@@ -13,10 +13,8 @@ app = FastAPI(title="Growda API - Federated Learning for Pneumonia Detection")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "*",  # Allow all origins (for development - remove in production if needed)
-    ],
-    allow_credentials=True,
+    allow_origins=["*"],  # Allow all origins
+    allow_credentials=False,  # Must be False when using "*" for origins
     allow_methods=["*"],
     allow_headers=["*"],
 )
