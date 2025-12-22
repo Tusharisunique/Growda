@@ -3,7 +3,7 @@ import apiService from "../services/api";
 import Loader from "../components/Loader";
 import Toast from "../components/Toast";
 
-const STATUS_POLL_INTERVAL = 3000;
+const STATUS_POLL_INTERVAL = 30000;
 
 export default function Dashboard() {
   const [status, setStatus] = useState({
@@ -164,7 +164,7 @@ export default function Dashboard() {
             <ul className="space-y-2 text-sm text-blue-900/70">
               <li><strong>Training:</strong> {status.in_progress ? 'Running' : 'Idle'}</li>
               <li><strong>Last update:</strong> {status.last_update ? new Date(parseFloat(status.last_update) * 1000).toLocaleString() : '—'}</li>
-              <li><strong>Global model:</strong> {status.global_accuracy ? `${status.global_accuracy.toFixed(2)}% accuracy` : 'Not evaluated yet'}</li>
+              <li><strong>Global model:</strong> {status.global_accuracy ? `${status.global_accuracy.toFixed(2)} accuracy` : 'Not evaluated yet'}</li>
             </ul>
           )}
         </div>
@@ -201,8 +201,8 @@ function AccuracyBars({ data }) {
   const max = Math.max(...data.map((item) => item.accuracy || 0), 0.01);
   return (
     <div className="flex items-end gap-3 h-40">
-      {data.map(({ round, accuracy }) => (
-        <div key={round} className="flex-1 flex flex-col items-center">
+      {data.map(({ round, accuracy }, index) => (
+        <div key={index} className="flex-1 flex flex-col items-center">
           <div className="w-full bg-blue-100 rounded-full flex items-end justify-center" style={{ height: '100%' }}>
             <div
               className="w-full rounded-full bg-blue-500 shadow-lg"

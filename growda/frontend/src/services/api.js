@@ -18,7 +18,7 @@ const apiService = {
       const response = await apiClient.get('/status');
       return response.data;
     } catch (error) {
-      console.error('Error fetching training status:', error);
+      console.error('❌ Error fetching training status:', error.response?.status, error.response?.data);
       throw error;
     }
   },
@@ -29,7 +29,7 @@ const apiService = {
       const response = await apiClient.get('/metrics/history');
       return response.data?.history ?? [];
     } catch (error) {
-      console.error('Error fetching metrics history:', error);
+      console.error('❌ Error fetching metrics history:', error.response?.status, error.response?.data);
       // Fallback to empty list if endpoint not available
       return [];
     }
@@ -41,7 +41,7 @@ const apiService = {
       const response = await apiClient.post('/train_round');
       return response.data;
     } catch (error) {
-      console.error('Error triggering training round:', error);
+      console.error('❌ Error triggering training round:', error.response?.status, error.response?.data);
       throw error;
     }
   },
@@ -56,11 +56,12 @@ const apiService = {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
+        timeout: 60000, // 60 second timeout for large image uploads
       });
 
       return response.data;
     } catch (error) {
-      console.error('Error predicting image:', error);
+      console.error('❌ Error predicting image:', error.response?.status, error.response?.data);
       throw error;
     }
   }

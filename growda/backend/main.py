@@ -1,9 +1,10 @@
 import os
 import threading
 import uvicorn
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 import tensorflow as tf
 from model import preprocess_image, get_class_and_confidence
 import fl_server
@@ -11,12 +12,24 @@ import fl_server
 MODEL_PATH = "global_model.keras"
 app = FastAPI(title="Growda API - Federated Learning for Pneumonia Detection")
 
+# Custom middleware to handle large request bodies (up to 50MB)
+class LargeUploadMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # Allow up to 50MB for file uploads
+        request.scope["extensions"] = request.scope.get("extensions", {})
+        request.scope["extensions"]["http.request.body.max_size"] = 50 * 1024 * 1024
+        response = await call_next(request)
+        return response
+
+app.add_middleware(LargeUploadMiddleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Allow all origins
     allow_credentials=False,  # Must be False when using "*" for origins
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],  # Expose all headers for better compatibility
 )
 
 training_in_progress = False
