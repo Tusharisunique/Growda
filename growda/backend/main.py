@@ -32,6 +32,19 @@ def _status_payload():
 def root():
     return {"message": "Welcome to Growda API - Federated Learning for Pneumonia Detection"}
 
+@app.get("/cors-test")
+def cors_test():
+    """Test endpoint to verify CORS is working"""
+    return JSONResponse(
+        status_code=200,
+        content={"message": "CORS is working!", "timestamp": str(os.times())},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
+
 @app.post("/train_round")
 def train_round():
     global training_in_progress
@@ -56,7 +69,14 @@ def train_round():
 
 @app.get("/status")
 def status():
-    return _status_payload()
+    return JSONResponse(
+        content=_status_payload(),
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
 
 @app.get("/training_status")
@@ -66,7 +86,14 @@ def training_status():
 
 @app.get("/metrics/history")
 def metrics_history():
-    return {"history": fl_server.get_metrics_history()}
+    return JSONResponse(
+        content={"history": fl_server.get_metrics_history()},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
 
 @app.options("/predict")
 async def predict_options():
