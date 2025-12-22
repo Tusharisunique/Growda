@@ -20,10 +20,19 @@ def create_pneumonia_model():
     return model
 
 def preprocess_image(image_path, target_size=(150, 150)):
-    img = tf.keras.preprocessing.image.load_img(image_path, target_size=target_size)
-    img_array = tf.keras.preprocessing.image.img_to_array(img)
-    img_array = img_array / 255.0
+    """Preprocess image with memory-efficient PIL loading."""
+    from PIL import Image
+    import numpy as np
+    
+    # Use PIL for more memory-efficient loading
+    img = Image.open(image_path)
+    img = img.convert('RGB')  # Ensure RGB format
+    img = img.resize(target_size, Image.Resampling.LANCZOS)
+    
+    # Convert to numpy array and normalize
+    img_array = np.array(img, dtype=np.float32) / 255.0
     img_array = tf.expand_dims(img_array, 0)
+    
     return img_array
 
 def get_class_and_confidence(pred):
