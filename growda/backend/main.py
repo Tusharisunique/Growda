@@ -4,24 +4,12 @@ import uvicorn
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
 import tensorflow as tf
 from model import preprocess_image, get_class_and_confidence
 import fl_server
 
 MODEL_PATH = "global_model.keras"
 app = FastAPI(title="Growda API - Federated Learning for Pneumonia Detection")
-
-# Custom middleware to handle large request bodies (up to 50MB)
-class LargeUploadMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        # Allow up to 50MB for file uploads
-        request.scope["extensions"] = request.scope.get("extensions", {})
-        request.scope["extensions"]["http.request.body.max_size"] = 50 * 1024 * 1024
-        response = await call_next(request)
-        return response
-
-app.add_middleware(LargeUploadMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -80,26 +68,55 @@ def training_status():
 def metrics_history():
     return {"history": fl_server.get_metrics_history()}
 
+@app.options("/predict")
+async def predict_options():
+    """Handle CORS preflight for predict endpoint"""
+    return JSONResponse(
+        status_code=200,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "POST, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+        }
+    )
+
 @app.post("/predict")
-def predict(file: UploadFile = File(...)):
+async def predict(file: UploadFile = File(...)):
+    print(f"[DEBUG] Received predict request - Content-Type: {file.content_type}, Filename: {file.filename}")
+    
     if not os.path.exists(MODEL_PATH):
         return JSONResponse(status_code=400, content={"error": "Model not trained yet."})
     if not file.content_type.startswith("image/"):
         return JSONResponse(status_code=400, content={"error": "Uploaded file is not an image"})
-    import tempfile, shutil
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        shutil.copyfileobj(file.file, temp_file)
-        temp_file_path = temp_file.name
+    
+    import tempfile
+    # Use async file operations to handle large uploads
     try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as temp_file:
+            # Read file in chunks to handle large files
+            chunk_size = 1024 * 1024  # 1MB chunks
+            while True:
+                chunk = await file.read(chunk_size)
+                if not chunk:
+                    break
+                temp_file.write(chunk)
+            temp_file_path = temp_file.name
+        
+        print(f"[DEBUG] File saved to {temp_file_path}, size: {os.path.getsize(temp_file_path)} bytes")
+        
         model = tf.keras.models.load_model(MODEL_PATH)
         img = preprocess_image(temp_file_path)
         prediction = model.predict(img)
         class_name, confidence, severity = get_class_and_confidence(prediction)
         return {"prediction": class_name, "confidence": float(confidence), "severity_level": severity}
     except Exception as e:
+        print(f"[ERROR] Prediction failed: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return JSONResponse(status_code=500, content={"error": f"Prediction failed: {str(e)}"})
     finally:
-        os.unlink(temp_file_path)
+        if 'temp_file_path' in locals():
+            os.unlink(temp_file_path)
 
 if __name__ == "__main__":
     # Bind to 0.0.0.0 to allow reverse proxy access
