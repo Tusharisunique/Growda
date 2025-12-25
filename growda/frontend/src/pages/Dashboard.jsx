@@ -94,7 +94,7 @@ export default function Dashboard() {
         <MetricCard
           label="Global Accuracy"
           value={(status.global_accuracy ?? 0).toFixed(2)}
-          note="%"
+          note=""
           highlight
         />
         <MetricCard label="Hospitals" value={status.connected_clients} note=" active" />
