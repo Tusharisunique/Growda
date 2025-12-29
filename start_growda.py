@@ -4,7 +4,6 @@ import sys
 import os
 import signal
 
-# List of components to start: (Name, Command, Relative Directory)
 components = [
     ("Backend API", "python3 -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload", "growda/backend"),
     ("FL Server", "python3 fl_server.py", "growda/backend"),
@@ -27,7 +26,6 @@ def cleanup(signum, frame):
             pass
     sys.exit(0)
 
-# Register signal handlers
 signal.signal(signal.SIGINT, cleanup)
 signal.signal(signal.SIGTERM, cleanup)
 
@@ -44,13 +42,11 @@ for name, cmd, rel_dir in components:
     print(f"Starting {name}...")
     cwd = os.path.join(base_dir, rel_dir)
     
-    # start_new_session=True creates a new process group, so we can kill the whole group later
     p = subprocess.Popen(cmd, shell=True, cwd=cwd, preexec_fn=os.setsid)
     processes.append(p)
 
 print("All services started. Press Ctrl+C to stop.")
 
-# Keep the script running
 try:
     while True:
         time.sleep(1)
