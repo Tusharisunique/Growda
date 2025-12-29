@@ -4,6 +4,7 @@
 .LSOverride
 
 # Python specific files and directories
+
 # Byte-code files
 *.pyc
 __pycache__/
