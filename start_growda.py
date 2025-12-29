@@ -20,7 +20,6 @@ def cleanup(signum, frame):
     print("\nStopping all services...")
     for p in processes:
         try:
-            # Send SIGTERM to the process group to ensure child processes (like npm -> node) are also killed
             os.killpg(os.getpgid(p.pid), signal.SIGTERM)
         except Exception:
             pass
