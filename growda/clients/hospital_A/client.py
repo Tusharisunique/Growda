@@ -72,7 +72,6 @@ def main():
         root_certs = f.read()
     
     # Configure gRPC options for long-running federated learning
-    # Increase keepalive to prevent "ping timeout" errors
     grpc_max_message_length = 100 * 1024 * 1024  # 100MB for large model weights
     grpc_options = [
         ("grpc.max_send_message_length", grpc_max_message_length),

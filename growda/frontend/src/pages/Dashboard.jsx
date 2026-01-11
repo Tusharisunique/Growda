@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import apiService from "../services/api";
 import Loader from "../components/Loader";
 import Toast from "../components/Toast";
@@ -97,24 +98,27 @@ export default function Dashboard() {
           note=""
           highlight
         />
-        <MetricCard label="Hospitals" value={status.connected_clients} note=" active" />
+        <MetricCard label="Hospitals (Last Round)" value={status.connected_clients} note="" />
       </div>
 
       <div className="glass mb-8 p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-2xl font-bold text-blue-900">Training Progress</h3>
-            <p className="text-sm text-blue-900/70">Live accuracy trend per round</p>
+            <p className="text-sm text-blue-900/70">Accuracy trend across federated learning rounds</p>
           </div>
           <span className="text-xs text-blue-500">Updated: {status.last_update ? new Date(parseFloat(status.last_update) * 1000).toLocaleTimeString() : "—"}</span>
         </div>
         {loadingHistory ? (
           <Loader label="Loading metrics..." />
         ) : recentAccuracy.length ? (
-          <AccuracyBars data={recentAccuracy} />
+          <>
+            <EnhancedAccuracyChart data={metricsHistory} />
+            <MetricsSummary data={metricsHistory} />
+          </>
         ) : (
           <div className="rounded-xl p-4 text-center text-blue-400 bg-blue-50">
-            No training history yet. Start a round to populate metrics.
+            No training history yet. Training will populate metrics automatically.
           </div>
         )}
       </div>
@@ -155,32 +159,18 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="flex flex-col md:flex-row items-stretch gap-4">
-        <div className="glass flex-1 p-6">
-          <h3 className="text-2xl font-bold text-blue-900 mb-3">System Status</h3>
-          {loadingStatus ? (
-            <Loader label="Checking server..." />
-          ) : (
-            <ul className="space-y-2 text-sm text-blue-900/70">
-              <li><strong>Training:</strong> {status.in_progress ? 'Running' : 'Idle'}</li>
-              <li><strong>Last update:</strong> {status.last_update ? new Date(parseFloat(status.last_update) * 1000).toLocaleString() : '—'}</li>
-              <li><strong>Global model:</strong> {status.global_accuracy ? `${status.global_accuracy.toFixed(2)} accuracy` : 'Not evaluated yet'}</li>
-            </ul>
-          )}
-        </div>
-        <div className="glass flex-1 p-6 flex flex-col justify-between">
-          <div>
-            <h3 className="text-2xl font-bold text-blue-900 mb-2">Training Controls</h3>
-            <p className="text-sm text-blue-900/70">Kick off a federated learning round. Clients must be running.</p>
-          </div>
-          <button
-            onClick={handleTrainRound}
-            disabled={status.in_progress || triggering}
-            className={`btn-cta w-full mt-4 ${status.in_progress || triggering ? 'opacity-60 cursor-not-allowed' : ''}`}
-          >
-            {status.in_progress || triggering ? 'Training...' : 'Start Training Round'}
-          </button>
-        </div>
+      <div className="glass p-6">
+        <h3 className="text-2xl font-bold text-blue-900 mb-3">System Status</h3>
+        {loadingStatus ? (
+          <Loader label="Checking server..." />
+        ) : (
+          <ul className="space-y-2 text-sm text-blue-900/70">
+            <li><strong>Training:</strong> {status.in_progress ? 'Running' : 'Idle'}</li>
+            <li><strong>Last update:</strong> {status.last_update ? new Date(parseFloat(status.last_update) * 1000).toLocaleString() : '—'}</li>
+            <li><strong>Global model:</strong> {status.global_accuracy ? `${status.global_accuracy.toFixed(2)} accuracy` : 'Not evaluated yet'}</li>
+            <li><strong>Server mode:</strong> Continuous (auto-starts when clients connect)</li>
+          </ul>
+        )}
       </div>
     </div>
   );
@@ -197,22 +187,83 @@ function MetricCard({ label, value, note, highlight }) {
   );
 }
 
-function AccuracyBars({ data }) {
-  const max = Math.max(...data.map((item) => item.accuracy || 0), 0.01);
+function EnhancedAccuracyChart({ data }) {
+  const chartData = data.map((item) => ({
+    round: item.round,
+    accuracy: typeof item.accuracy === 'number' ? (item.accuracy * 100).toFixed(2) : 0,
+  }));
+
   return (
-    <div className="flex items-end gap-3 h-40">
-      {data.map(({ round, accuracy }, index) => (
-        <div key={index} className="flex-1 flex flex-col items-center">
-          <div className="w-full bg-blue-100 rounded-full flex items-end justify-center" style={{ height: '100%' }}>
-            <div
-              className="w-full rounded-full bg-blue-500 shadow-lg"
-              style={{ height: `${Math.min(accuracy / max, 1) * 100}%` }}
-            />
-          </div>
-          <span className="text-xs text-blue-900 font-semibold mt-2">R{round}</span>
-          <span className="text-[10px] text-blue-500">{(accuracy * 100).toFixed(1)}%</span>
-        </div>
-      ))}
+    <div className="h-64 mb-6">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#E0E7FF" />
+          <XAxis
+            dataKey="round"
+            label={{ value: 'Round', position: 'insideBottom', offset: -5 }}
+            stroke="#6366F1"
+          />
+          <YAxis
+            label={{ value: 'Accuracy (%)', angle: -90, position: 'insideLeft' }}
+            stroke="#6366F1"
+            domain={[0, 100]}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#F0F4FF',
+              border: '2px solid #6366F1',
+              borderRadius: '8px',
+              padding: '8px 12px'
+            }}
+            formatter={(value) => [`${value}%`, 'Accuracy']}
+            labelFormatter={(label) => `Round ${label}`}
+          />
+          <Legend />
+          <Line
+            type="monotone"
+            dataKey="accuracy"
+            stroke="#6366F1"
+            strokeWidth={3}
+            dot={{ fill: '#6366F1', r: 5 }}
+            activeDot={{ r: 7 }}
+            name="Global Accuracy"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+function MetricsSummary({ data }) {
+  if (!data || data.length === 0) return null;
+
+  const accuracies = data.map(item => typeof item.accuracy === 'number' ? item.accuracy : 0);
+  const totalRounds = data.length;
+  const avgAccuracy = accuracies.reduce((sum, acc) => sum + acc, 0) / totalRounds;
+  const bestAccuracy = Math.max(...accuracies);
+  const latestAccuracy = accuracies[accuracies.length - 1];
+  const previousAccuracy = accuracies.length > 1 ? accuracies[accuracies.length - 2] : latestAccuracy;
+  const trend = latestAccuracy > previousAccuracy ? '↑' : latestAccuracy < previousAccuracy ? '↓' : '→';
+  const trendColor = latestAccuracy > previousAccuracy ? 'text-green-600' : latestAccuracy < previousAccuracy ? 'text-red-600' : 'text-blue-600';
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
+      <div className="bg-blue-50/60 rounded-xl px-4 py-3">
+        <div className="text-xs text-blue-600 font-semibold mb-1">Total Rounds</div>
+        <div className="text-2xl font-bold text-blue-900">{totalRounds}</div>
+      </div>
+      <div className="bg-blue-50/60 rounded-xl px-4 py-3">
+        <div className="text-xs text-blue-600 font-semibold mb-1">Average Accuracy</div>
+        <div className="text-2xl font-bold text-blue-900">{(avgAccuracy * 100).toFixed(1)}%</div>
+      </div>
+      <div className="bg-blue-50/60 rounded-xl px-4 py-3">
+        <div className="text-xs text-blue-600 font-semibold mb-1">Best Accuracy</div>
+        <div className="text-2xl font-bold text-blue-900">{(bestAccuracy * 100).toFixed(1)}%</div>
+      </div>
+      <div className="bg-blue-50/60 rounded-xl px-4 py-3">
+        <div className="text-xs text-blue-600 font-semibold mb-1">Trend</div>
+        <div className={`text-2xl font-bold ${trendColor}`}>{trend} {((latestAccuracy - previousAccuracy) * 100).toFixed(1)}%</div>
+      </div>
     </div>
   );
 }
