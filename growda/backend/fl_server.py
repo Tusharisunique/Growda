@@ -13,7 +13,7 @@ from backend.model import create_pneumonia_model
 
 print(" Starting Growda Flower Federated Server...")
 
-# Default to localhost:8100 for Nginx reverse proxy setup
+
 FL_SERVER_HOST = os.getenv("FL_SERVER_HOST", "0.0.0.0")
 FL_SERVER_PORT = int(os.getenv("FL_SERVER_PORT", "8100"))
 
@@ -23,7 +23,7 @@ global_round = 0
 global_accuracy = 0.0
 connected_clients = 0
 
-# New: store all per-client metrics
+
 all_client_metrics = []
 
 def weighted_average(metrics: List[Tuple[int, Metrics]]) -> Metrics:
@@ -49,11 +49,11 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
         global_round = server_round
         filtered_results = []
         client_metrics = []
-        acc_inputs = []  # (num_examples, {"accuracy": value}) for weighted_average
+        acc_inputs = []
 
         for idx, r in enumerate(results or []):
             try:
-                # Expected Flower >=1.4.0 structure: (ClientProxy, FitRes)
+                
                 if isinstance(r, tuple) and len(r) == 2 and hasattr(r[1], "parameters"):
                     fit_res = r[1]
                     metrics = getattr(fit_res, "metrics", {})
@@ -66,7 +66,7 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
                     filtered_results.append(r)
                     continue
 
-                # Legacy/invalid shapes: log and skip from aggregation to avoid crashes
+                
                 if isinstance(r, tuple) and len(r) == 2 and isinstance(r[1], int):
                     client_metrics.append({"client": f"legacy_{idx}", "accuracy": None})
                     print(f"[Aggregation] Skipping legacy fit result at index {idx}")
@@ -84,10 +84,10 @@ class PneumoniaStrategy(fl.server.strategy.FedAvg):
             return None, {}
 
         aggregated_weights, _ = super().aggregate_fit(server_round, filtered_results, failures)
-        # Save & log global model after aggregation
+        
         if aggregated_weights is not None:
             try:
-                # Convert aggregated Flower Parameters to NumPy weights
+                
                 ndarrays = parameters_to_ndarrays(aggregated_weights)
                 model = create_pneumonia_model()
                 model.set_weights(ndarrays)
