@@ -197,4 +197,6 @@ def start_server(num_rounds: int = 3, reset_model: bool = False):
         print(f"❌ Server error during execution: {e}")
 
 if __name__ == "__main__":
-    start_server(num_rounds=3)
+    # Run with 999 rounds (effectively continuous)
+    # Training starts automatically when min_available_clients (1) connects
+    start_server(num_rounds=999)
