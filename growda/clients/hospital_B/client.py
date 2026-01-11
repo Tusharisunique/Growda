@@ -84,7 +84,7 @@ def main():
     fl.client.start_numpy_client(
         server_address="growdafl.diwanshujoshi.in:443",
         client=client,
-        root_certificates=root_certs,  # Enables secure gRPC with TLS
+        root_certificates=root_certs,
         grpc_max_message_length=grpc_max_message_length,
     )
 
