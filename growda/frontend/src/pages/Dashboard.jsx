@@ -91,7 +91,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <MetricCard label="Round" value={status.round} note={` / ${status.total_rounds ?? 0}`} />
+        <MetricCard label="Round" value={status.round} note="" />
         <MetricCard
           label="Global Accuracy"
           value={(status.global_accuracy ?? 0).toFixed(2)}
@@ -197,21 +197,21 @@ function EnhancedAccuracyChart({ data }) {
     <div className="h-64 mb-6">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={chartData} margin={{ top: 5, right: 30, left: 0, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E0E7FF" />
+          <CartesianGrid strokeDasharray="3 3" stroke="#FED7AA" />
           <XAxis
             dataKey="round"
             label={{ value: 'Round', position: 'insideBottom', offset: -5 }}
-            stroke="#6366F1"
+            stroke="#92400E"
           />
           <YAxis
             label={{ value: 'Accuracy (%)', angle: -90, position: 'insideLeft' }}
-            stroke="#6366F1"
+            stroke="#92400E"
             domain={[0, 100]}
           />
           <Tooltip
             contentStyle={{
-              backgroundColor: '#F0F4FF',
-              border: '2px solid #6366F1',
+              backgroundColor: '#FEF3C7',
+              border: '2px solid #92400E',
               borderRadius: '8px',
               padding: '8px 12px'
             }}
@@ -222,9 +222,9 @@ function EnhancedAccuracyChart({ data }) {
           <Line
             type="monotone"
             dataKey="accuracy"
-            stroke="#6366F1"
+            stroke="#92400E"
             strokeWidth={3}
-            dot={{ fill: '#6366F1', r: 5 }}
+            dot={{ fill: '#78350F', r: 5 }}
             activeDot={{ r: 7 }}
             name="Global Accuracy"
           />
