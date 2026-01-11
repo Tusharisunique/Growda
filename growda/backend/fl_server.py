@@ -13,7 +13,6 @@ from backend.model import create_pneumonia_model
 
 print(" Starting Growda Flower Federated Server...")
 
-# Server configuration - supports environment variables for deployment
 # Default to localhost:8100 for Nginx reverse proxy setup
 FL_SERVER_HOST = os.getenv("FL_SERVER_HOST", "0.0.0.0")
 FL_SERVER_PORT = int(os.getenv("FL_SERVER_PORT", "8100"))
@@ -177,11 +176,11 @@ def start_server(num_rounds: int = 3, reset_model: bool = False):
         os.remove(MODEL_PATH)
     _ensure_model_file()
     strategy = PneumoniaStrategy(
-        min_fit_clients=2,
-        min_evaluate_clients=2,
-        min_available_clients=2,
-        fraction_fit=1.0,
-        fraction_evaluate=1.0,
+        min_fit_clients=1,  
+        min_evaluate_clients=1,  
+        min_available_clients=1,  
+        fraction_fit=1.0,  
+        fraction_evaluate=1.0,  
         evaluate_metrics_aggregation_fn=weighted_average,
         initial_parameters=_initial_parameters(),
     )

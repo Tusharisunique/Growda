@@ -7,7 +7,6 @@ import flwr as fl
 import tensorflow as tf
 import numpy as np
 
-# Add the parent directory to the path to import shared modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 from backend.model import create_pneumonia_model
 
@@ -62,7 +61,32 @@ class PneumoniaClient(fl.client.NumPyClient):
 
 def main():
     client = PneumoniaClient()
-    fl.client.start_numpy_client(server_address="growdafl.diwanshujoshi.in", client=client)
+    
+    # Connect to FL server through Nginx SSL reverse proxy (port 443)
+    import certifi
+    
+    # Read system CA certificates to enable TLS
+    with open(certifi.where(), 'rb') as f:
+        root_certs = f.read()
+    
+    # Configure gRPC options for long-running federated learning
+
+    grpc_max_message_length = 100 * 1024 * 1024
+    grpc_options = [
+        ("grpc.max_send_message_length", grpc_max_message_length),
+        ("grpc.max_receive_message_length", grpc_max_message_length),
+        ("grpc.keepalive_time_ms", 600000),
+        ("grpc.keepalive_timeout_ms", 300000),
+        ("grpc.keepalive_permit_without_calls", 1),
+        ("grpc.http2.max_pings_without_data", 0),
+    ]
+    
+    fl.client.start_numpy_client(
+        server_address="growdafl.diwanshujoshi.in:443",
+        client=client,
+        root_certificates=root_certs,  # Enables secure gRPC with TLS
+        grpc_max_message_length=grpc_max_message_length,
+    )
 
 if __name__ == "__main__":
     main()

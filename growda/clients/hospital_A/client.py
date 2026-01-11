@@ -12,7 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 from backend.model import create_pneumonia_model
 
 # Data paths
-DATA_DIR = "../../data/hospital_A"  # For hospital_B: change to "hospital_B"
+DATA_DIR = "../../data/hospital_A" 
 
 class PneumoniaClient(fl.client.NumPyClient):
     def __init__(self):
@@ -62,7 +62,33 @@ class PneumoniaClient(fl.client.NumPyClient):
 
 def main():
     client = PneumoniaClient()
-    fl.client.start_numpy_client(server_address="growdafl.diwanshujoshi.in", client=client)
+    
+    # Connect to FL server through Nginx SSL reverse proxy (port 443)
+    # Must explicitly provide root certificates to enable secure gRPC (grpcs://)
+    import certifi
+    
+    # Read system CA certificates to enable TLS
+    with open(certifi.where(), 'rb') as f:
+        root_certs = f.read()
+    
+    # Configure gRPC options for long-running federated learning
+    # Increase keepalive to prevent "ping timeout" errors
+    grpc_max_message_length = 100 * 1024 * 1024  # 100MB for large model weights
+    grpc_options = [
+        ("grpc.max_send_message_length", grpc_max_message_length),
+        ("grpc.max_receive_message_length", grpc_max_message_length),
+        ("grpc.keepalive_time_ms", 600000),  # 10 minutes
+        ("grpc.keepalive_timeout_ms", 300000),  # 5 minutes
+        ("grpc.keepalive_permit_without_calls", 1),
+        ("grpc.http2.max_pings_without_data", 0),
+    ]
+    
+    fl.client.start_numpy_client(
+        server_address="growdafl.diwanshujoshi.in:443",
+        client=client,
+        root_certificates=root_certs,  # Enables secure gRPC with TLS
+        grpc_max_message_length=grpc_max_message_length,
+    )
 
 if __name__ == "__main__":
     main()
