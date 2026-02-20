@@ -48,3 +48,6 @@ htmlcov/
 .idea/          # PyCharm/IntelliJ
 *.swp           # Vim swap files
 
+global_model.keras
+metrics_history.npy
+
