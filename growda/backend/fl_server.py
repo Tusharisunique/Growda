@@ -17,8 +17,11 @@ print(" Starting Growda Flower Federated Server...")
 FL_SERVER_HOST = os.getenv("FL_SERVER_HOST", "0.0.0.0")
 FL_SERVER_PORT = int(os.getenv("FL_SERVER_PORT", "8100"))
 
-MODEL_PATH = "global_model.keras"
-HISTORY_PATH = "metrics_history.npy"
+# Use absolute paths so files are found regardless of the working directory
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BACKEND_DIR, "global_model.keras")
+HISTORY_PATH = os.path.join(BACKEND_DIR, "metrics_history.npy")
+
 global_round = 0
 global_accuracy = 0.0
 connected_clients = 0

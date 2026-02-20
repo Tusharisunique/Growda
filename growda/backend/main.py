@@ -23,7 +23,11 @@ try:
 except Exception as e:
     print(f"[TensorFlow Config] Warning: Could not configure TF memory settings: {e}")
 
-MODEL_PATH = "global_model.keras"
+# Use absolute path so the model file is found regardless of the working directory
+# (e.g. when started by systemd from a different cwd)
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BACKEND_DIR, "global_model.keras")
+
 app = FastAPI(title="Growda API - Federated Learning for Pneumonia Detection")
 
 
